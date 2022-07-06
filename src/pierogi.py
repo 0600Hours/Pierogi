@@ -9,3 +9,4 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+application = ApplicationBuilder().token(config.TOKEN).build()
