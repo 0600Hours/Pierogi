@@ -1,7 +1,7 @@
 # command handlers for group commands
 
 from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler
+from telegram.ext import ContextTypes, CommandHandler, filters
 
 
 async def handle_addquote(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -10,4 +10,7 @@ async def handle_addquote(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text='quote added'
     )
 
-handler_addquote = CommandHandler('addquote', handle_addquote)
+handler_addquote = CommandHandler(
+    'addquote',
+    handle_addquote,
+    filters.ChatType.GROUPS)
