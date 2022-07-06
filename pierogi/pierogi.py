@@ -1,13 +1,13 @@
 import logging
-from typing import List
-from telegram.ext import ApplicationBuilder, BaseHandler
+from telegram.ext import ApplicationBuilder
 import yaml
 
 # logging
 logging.basicConfig(
-    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level = logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
+
 
 # core bot class
 class Pierogi:
@@ -17,6 +17,7 @@ class Pierogi:
 
     def run(self):
         self.app.run_polling()
+
 
 if __name__ == '__main__':
     from pierogi.handlers import handlers
@@ -30,6 +31,6 @@ if __name__ == '__main__':
         except yaml.YAMLError as e:
             logging.error(e)
             quit()
-    
+
     pierogi = Pierogi(config, handlers)
     pierogi.run()
