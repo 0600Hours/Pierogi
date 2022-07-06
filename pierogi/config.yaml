@@ -1,0 +1,7 @@
+---
+# NOTE TO SELF: 
+# this file is marked as ignored in git.
+# run git update-index --no-assume-unchanged src/config.py before you commit changes
+
+BOT_NAME: '@pierogi_quote_bot'
+BOT_TOKEN: 'register with @BotFather to get a token'
