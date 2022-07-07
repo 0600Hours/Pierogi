@@ -1,8 +1,11 @@
-import logging
 import handlers
+import logging
 import os
+import traceback
 import yaml
-from telegram.ext import ApplicationBuilder
+from telegram.ext import ApplicationBuilder, CallbackContext
+from telegram.error import (ChatMigrated, NetworkError, TelegramError)
+from typing import Optional
 
 # logging
 logging.basicConfig(
@@ -20,6 +23,17 @@ class PierogiCore:
     def __init__(self, config, handlers):
         self.app = ApplicationBuilder().token(config['BOT_TOKEN']).build()
         self.app.add_handlers(handlers)
+        self.app.add_error_handler(self.handle_error)
+
+    def handle_error(update: Optional[object], context: CallbackContext):
+        try:
+            raise context.error
+        except ChatMigrated:  # taken care of in group migration handler
+            pass
+        except NetworkError:  # it's fine don't worry about it :)
+            pass
+        except TelegramError:
+            logging.error(traceback.format_exc())
 
     def run(self):
         self.app.run_polling()
