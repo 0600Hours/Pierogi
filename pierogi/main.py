@@ -1,6 +1,7 @@
 import logging
 from telegram.ext import ApplicationBuilder
 import yaml
+import handlers
 
 # logging
 logging.basicConfig(
@@ -10,7 +11,7 @@ logging.basicConfig(
 
 
 # core bot class
-class Pierogi:
+class PierogiCore:
     def __init__(self, config, handlers):
         self.app = ApplicationBuilder().token(config['BOT_TOKEN']).build()
         self.app.addHandlers(handlers)
@@ -20,8 +21,6 @@ class Pierogi:
 
 
 if __name__ == '__main__':
-    from pierogi.handlers import handlers
-
     logging.info('began running')
 
     # get config
@@ -32,5 +31,5 @@ if __name__ == '__main__':
             logging.error(e)
             quit()
 
-    pierogi = Pierogi(config, handlers)
-    pierogi.run()
+    pierogiCore = PierogiCore(config, handlers)
+    pierogiCore.run()
