@@ -42,6 +42,7 @@ def format_response(s, emoji):
     return s
 
 
+# generate a list of all possible ways to call addquote
 def generate_commands():
     return list(map(''.join, list(itertools.product(COMMAND_PREFIXES.keys(), COMMAND_SUFFIXES))))
 
