@@ -1,1 +1,1 @@
-# command handlers for dm commands
+'''Command handlers for actions in DMs'''

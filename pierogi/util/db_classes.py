@@ -1,4 +1,4 @@
-# classes to define the db schema
+'''Classes for defining the quote databse schema'''
 
 from sqlalchemy import (
     Boolean, Column, DateTime, Enum, ForeignKey, Integer, PrimaryKeyConstraint, String, Text,
@@ -18,8 +18,8 @@ chat_membership_table = Table(
     PrimaryKeyConstraint('user_id', 'chat_id'))
 
 
-# any user in a chat with a quote
 class User(Base):
+    '''Any user who belongs to a chat'''
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True, autoincrement=False)
@@ -44,8 +44,8 @@ class User(Base):
         back_populates='user')
 
 
-# any group/supergroup that the bot is in
 class Chat(Base):
+    '''Any group or supergroup in which the bot is a member'''
     __tablename__ = 'chat'
 
     id = Column(Integer, primary_key=True, autoincrement=False)
@@ -64,8 +64,8 @@ class Chat(Base):
         back_populates='chat')
 
 
-# a message that someone's quoted and all related data
 class Quote(Base):
+    '''A message that's been quoted by the bot'''
     __tablename__ = 'quote'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -108,8 +108,8 @@ class Quote(Base):
     constraint2 = UniqueConstraint('sent_at', 'sent_by_id', 'content_html')
 
 
-# a reply sent by the bot that contains a quote to be voted on
 class SentQuoteMessage(Base):
+    '''A message sent by the bot that contains a quote as a result'''
     __tablename__ = 'sent_quote_message'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -127,8 +127,8 @@ class SentQuoteMessage(Base):
     message_id = Column(Integer)
 
 
-# a vote on a specific quote from a specific user
 class Vote(Base):
+    '''A vote cast by a user on a specific quote'''
     __tablename__ = 'vote'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -1,4 +1,4 @@
-# command handlers for group commands
+'''Command handlers for actions in groups'''
 
 import re
 import itertools
@@ -35,22 +35,35 @@ COMMAND_PREFIXES = {
 COMMAND_SUFFIXES = ['quote', 'qoute']
 
 
-# properly formats a word with optional emojis
 def format_response(s, emoji):
+    '''
+    Insert an emoji into every space in a string
+
+    :param str s: string to be formatted
+    :param str emoji: emoji to be inserted into s
+    :return: newly formatted s
+    :rtype: s
+    '''
     if emoji is not None:
         return f' {emoji} '.join(s.split(' '))
     return s
 
 
-# generate a list of all possible ways to call addquote
 def generate_commands():
+    '''
+    Generate a list of possible commands from prefixes and suffixes
+
+    :return: all possible combinations of command prefixes and suffixes
+    :rtype: str
+    '''
     return list(map(''.join, list(itertools.product(COMMAND_PREFIXES.keys(), COMMAND_SUFFIXES))))
 
 
-# add a quote to the db
 async def handle_addquote(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE):
+    '''Add a new quote to the database'''
+
     # isolate command name
     message = update.message
     command_text = re.split('/|@| ', message.text, 2)[1]
