@@ -92,4 +92,4 @@ async def handle_addquote(
 handler_addquote = CommandHandler(
     generate_commands(),
     handle_addquote,
-    filters.ChatType.GROUPS)
+    filters.ChatType.GROUPS & filters.REPLY)

@@ -23,8 +23,8 @@ logging.basicConfig(
 CONFIG_FILENAME = 'config.yaml'
 DATABASE_FILENAME = 'quotes.db' if not DEBUG else 'quotes_test.db'
 
-# init databse
-quote_database = QuoteDatabase
+# init database
+quote_database = QuoteDatabase(DATABASE_FILENAME)
 
 
 class PierogiCore:
