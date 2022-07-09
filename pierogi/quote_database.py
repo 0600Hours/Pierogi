@@ -26,3 +26,8 @@ class QuoteDatabase:
         Base.metadata.create_all(engine)
 
         self.session_factory = sessionmaker(engine)
+
+    def create_session(self, **kwargs):
+        '''Create a session for interacting with the database'''
+        return self.session_factory(**kwargs)
+
