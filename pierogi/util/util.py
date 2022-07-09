@@ -20,7 +20,7 @@ def session_scope():
         session.close()
 
 
-def session_wrapper(f):
+def with_session(f):
     '''Wrapper decorative to pass a session object to database methods'''
     @functools.wraps(f)
     def with_session(*args, **kwargs):
