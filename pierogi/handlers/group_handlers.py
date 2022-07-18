@@ -2,8 +2,8 @@
 
 import re
 import itertools
-from pierogi.main import quote_database
-from pierogi.util.db_classes import QUOTE_TYPES
+from main import quote_database
+from util.db_classes import QUOTE_TYPES
 from sqlalchemy.orm import Session
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, filters
