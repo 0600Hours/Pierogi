@@ -1,7 +1,8 @@
 '''Define quote database object and functions for interacting with it'''
 
+import logging
 import os
-from util.db_classes import Base, Chat, Quote, User
+from pierogi.util.db_classes import Base, Chat, Quote, User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.sql import exists
@@ -23,11 +24,14 @@ class QuoteDatabase:
         '''
         Quote database constructor
 
-        :param str filename: file location of the quote database
+        :param str db_location: file location of the quote database
         '''
-        self.filename = filename
+        from main import BASE_DIR
 
-        engine = create_engine(f'sqlite:///{os.path.join("data", filename)}')
+        self.db_location = f'sqlite:///{os.path.join(BASE_DIR, "data", filename)}'
+        logging.INFO(f'db location: {self.db_location}')
+        
+        engine = create_engine(self.db_location)
         Base.metadata.create_all(engine)
 
         self.session_factory = sessionmaker(engine)

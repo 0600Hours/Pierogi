@@ -1,10 +1,9 @@
-import handlers
 import logging
 import os
 import sys
 import traceback
 import yaml
-from quote_database import QuoteDatabase
+from pierogi.quote_database import QuoteDatabase
 from telegram.ext import ApplicationBuilder, CallbackContext
 from telegram.error import (ChatMigrated, NetworkError, TelegramError)
 from typing import Optional
@@ -14,12 +13,13 @@ DEBUG = any(arg in sys.argv[1:] for arg in ['-d', '--debug'])
 
 # logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
     level=logging.INFO
 )
 
 
 # constants
+BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pierogi')
 CONFIG_FILENAME = 'config.yaml'
 DATABASE_FILENAME = 'quotes.db' if not DEBUG else 'quotes_test.db'
 
@@ -65,16 +65,20 @@ class PierogiCore:
         self.app.run_polling()
 
 
-if __name__ == '__main__':
+def run():
+    '''
+    Core initialization and running
+    '''
+    from pierogi.handlers import handlers
     logging.info(f'began running. debug mode: {DEBUG}')
 
     # get config
-    with open(os.path.join('data', CONFIG_FILENAME), 'r') as stream:
+    with open(os.path.join(BASE_DIR, 'data', CONFIG_FILENAME), 'r') as stream:
         try:
             config = yaml.safe_load(stream)
         except yaml.YAMLError as e:
             logging.error(e)
             quit()
 
-    pierogiCore = PierogiCore(config, handlers.handlers)
+    pierogiCore = PierogiCore(config, handlers)
     pierogiCore.run()

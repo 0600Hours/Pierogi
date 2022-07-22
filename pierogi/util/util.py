@@ -2,7 +2,7 @@
 
 import functools
 import logging
-from main import quote_database
+from pierogi.main import quote_database
 
 
 def session_scope():

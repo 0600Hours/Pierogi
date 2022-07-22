@@ -2,12 +2,12 @@
 
 import re
 import itertools
-from main import quote_database
-from util.db_classes import QUOTE_TYPES
+from pierogi.main import quote_database
+from pierogi.util.db_classes import QUOTE_TYPES
+from pierogi.util.util import with_session
 from sqlalchemy.orm import Session
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, filters
-from util.util import with_session
 
 # emoji definitions
 LOUDLY_CRYING_FACE = '\U0001F62D'
