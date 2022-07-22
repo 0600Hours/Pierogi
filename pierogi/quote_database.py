@@ -29,7 +29,7 @@ class QuoteDatabase:
         from main import BASE_DIR
 
         self.db_location = f'sqlite:///{os.path.join(BASE_DIR, "data", filename)}'
-        logging.INFO(f'db location: {self.db_location}')
+        logging.info(f'db location: {self.db_location}')
 
         engine = create_engine(self.db_location)
         Base.metadata.create_all(engine)
@@ -88,10 +88,10 @@ class QuoteDatabase:
             return self.get_quote_by_id(quote_id), self.QUOTE_ALREADY_EXISTS
 
         # find chat and relevant user objects
-        chat = self.get_chat_by_id(chat_id)
-        sent_by = self.get_user_by_id(sent_by_id)
-        quoted_by = self.get_user_by_id(quoted_by_id)
-        forwarded_by = self.get_user_by_id(forwarded_by_id)
+        chat = self.get_chat_by_id(session, chat_id)
+        sent_by = self.get_user_by_id(session, sent_by_id)
+        quoted_by = self.get_user_by_id(session, quoted_by_id)
+        forwarded_by = self.get_user_by_id(session, forwarded_by_id)
 
         # add quote to the database
         quote = Quote(
@@ -99,6 +99,9 @@ class QuoteDatabase:
             forwarded_at=forwarded_at, sent_by=sent_by, sent_at=sent_at, message_type=message_type,
             content=content, content_html=content_html, file_id=file_id, quoted_by=quoted_by,
             quoted_at=quoted_at)
+        session.add(quote)
+
+        return quote, self.QUOTE_SUCCESSFULLY_ADDED
 
     # quote message methods
 

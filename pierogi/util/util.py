@@ -1,19 +1,22 @@
 '''Miscellanious utility methods'''
 
+import contextlib
 import functools
 import logging
 from pierogi.main import quote_database
 
 
+@contextlib.contextmanager
 def session_scope():
     '''Define a session scope for database transactions'''
     session = quote_database.create_session()
 
     try:
         yield session
+        logging.info('commit')
         session.commit()
     except Exception as e:
-        logging.ERROR(e)
+        logging.error(e)
         session.rollback()
         raise
     finally:

@@ -22,6 +22,13 @@ logging.basicConfig(
 BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pierogi')
 CONFIG_FILENAME = 'config.yaml'
 DATABASE_FILENAME = 'quotes.db' if not DEBUG else 'quotes_test.db'
+with open(os.path.join(BASE_DIR, 'data', CONFIG_FILENAME), 'r') as stream:
+    try:
+        CONFIG = yaml.safe_load(stream)
+    except yaml.YAMLError as e:
+        logging.error(e)
+        quit()
+BOT_USERNAME: str = CONFIG['BOT_NAME']
 
 # init database
 quote_database = QuoteDatabase(DATABASE_FILENAME)
@@ -45,7 +52,7 @@ class PierogiCore:
         self.app.add_handlers(handlers)
         self.app.add_error_handler(self.handle_error)
 
-    def handle_error(update: Optional[object], context: CallbackContext):
+    async def handle_error(self, update: Optional[object], context: CallbackContext):
         '''
         General error handler for all updates
         '''
@@ -72,13 +79,5 @@ def run():
     from pierogi.handlers import handlers
     logging.info(f'began running. debug mode: {DEBUG}')
 
-    # get config
-    with open(os.path.join(BASE_DIR, 'data', CONFIG_FILENAME), 'r') as stream:
-        try:
-            config = yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            logging.error(e)
-            quit()
-
-    pierogiCore = PierogiCore(config, handlers)
+    pierogiCore = PierogiCore(CONFIG, handlers)
     pierogiCore.run()

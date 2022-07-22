@@ -1,8 +1,9 @@
 '''Command handlers for actions in groups'''
 
+import logging
 import re
 import itertools
-from pierogi.main import quote_database
+from pierogi.main import quote_database, BOT_USERNAME
 from pierogi.util.db_classes import QUOTE_TYPES
 from pierogi.util.util import with_session
 from sqlalchemy.orm import Session
@@ -69,6 +70,7 @@ async def handle_addquote(
         context: ContextTypes.DEFAULT_TYPE,
         session: Session):
     '''Add a new quote to the database'''
+    logging.info('addquote')
 
     message = update.message
     quoted_message = message.reply_to_message
@@ -92,8 +94,7 @@ async def handle_addquote(
         verb = 'added'
         emoji = None
 
-    # prevent quoting automatic channel forwards
-    if quoted_message.forward_from_message_id is not None:
+    if quoted_message.forward_from_message_id is not None:  # prevent quoting automatic channel forwards
         response = f"can't {noun} auto-forwarded channel posts"
     else:
         # determine quote type
@@ -124,34 +125,45 @@ async def handle_addquote(
             chat_id = message.chat_id
             message_id = quoted_message.message_id
             quoted_by = message.from_user
+            quoted_by_id = quoted_by.id
             quoted_at = message.date
             is_forward = quoted_message.forward_from is not None
             if is_forward:
                 forwarded_by = quoted_message.from_user
+                forwarded_by_id = forwarded_by.id
                 forwarded_at = quoted_message.date
                 sent_by = quoted_message.forward_from
+                sent_by_id = sent_by.id
                 sent_at = quoted_message.forward_date
             else:
                 forwarded_by = None
+                forwarded_by_id = None
                 forwarded_at = None
                 sent_by = quoted_message.from_user
+                sent_by_id = sent_by.id
                 sent_at = quoted_message.date
 
-            # attempt to add quote to database
-            new_quote, status = quote_database.add_quote(
-                session, chat_id, message_id, is_forward, forwarded_by, forwarded_at, sent_by, sent_at, message_type,
-                content, content_html, file_id, quoted_by, quoted_at)
-
-            # check if quote was added successfully
-            if status == quote_database.QUOTE_SUCCESSFULLY_ADDED:
-                response = f'{noun} {verb}'
-            elif status == quote_database.QUOTE_ALREADY_EXISTS:
-                response = f'{noun} already exists'
-            elif status == quote_database.QUOTE_PREVIOUSLY_DELETED:
-                response = f'{noun} was previously deleted'
+            if sent_by.username == BOT_USERNAME.lstrip('@'):  # prevent quoting bot messages
+                response = f"can't {noun} quote bot messages"
+            elif sent_by_id == quoted_by_id:  # prevent quoting own messages
+                response = f"can't {noun} your own messages"
             else:
-                raise RuntimeError(
-                    f'invalid quote add status found: {status}')
+                # attempt to add quote to database
+                new_quote, status = quote_database.add_quote(
+                    session, chat_id, message_id, is_forward, forwarded_by_id, forwarded_at, sent_by_id, sent_at,
+                    message_type, content, content_html, file_id, quoted_by_id, quoted_at)
+
+                # check if quote was added successfully
+                if status == quote_database.QUOTE_SUCCESSFULLY_ADDED:
+                    response = f'{noun} {verb}'
+                elif status == quote_database.QUOTE_ALREADY_EXISTS:
+                    response = f'{noun} already exists'
+                elif status == quote_database.QUOTE_PREVIOUSLY_DELETED:
+                    response = f'{noun} was previously deleted'
+                else:
+                    response = 'invalid quote status found'
+                    raise RuntimeError(
+                        f'invalid quote add status found: {status}')
 
     # reply to user with result
     await context.bot.send_message(
