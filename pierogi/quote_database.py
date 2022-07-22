@@ -26,7 +26,7 @@ class QuoteDatabase:
 
         :param str db_location: file location of the quote database
         '''
-        from main import BASE_DIR
+        BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pierogi')
 
         self.db_location = f'sqlite:///{os.path.join(BASE_DIR, "data", filename)}'
         logging.info(f'db location: {self.db_location}')
@@ -51,12 +51,63 @@ class QuoteDatabase:
                 .filter_by(id=user_id)
                 .one_or_none())
 
+    def add_or_update_user(self, session: Session, tg_user):
+        '''Adds a user to the database, or updates them if they exist'''
+        if self.user_exists(tg_user.id):
+            # user already exists, update their info
+            db_user: User = self.get_user_by_id(tg_user.id)
+            db_user.first_name = tg_user.first_name
+            db_user.last_name = tg_user.last_name
+            db_user.username = tg_user.username
+        else:
+            # create new user
+            db_user = User(
+                id=tg_user.id, first_name=tg_user.first_name, last_name=tg_user.last_name, username=tg_user.username)
+            session.add(db_user)
+
     # chat methods
+    def chat_exists(self, session: Session, chat_id):
+        '''Test whether or not a user exists in the database'''
+        return session.query(exists().where(Chat.id == chat_id)).scalar()
+
     def get_chat_by_id(self, session: Session, chat_id):
         '''Find a chat by its id, if it exists'''
         return (session.query(Chat)
                 .filter_by(id=chat_id)
                 .one_or_none())
+
+    def add_or_update_chat(self, session: Session, tg_chat):
+        '''Adds a user to the database, or updates them if they exist'''
+        if self.chat_exists(tg_chat.id):
+            # chat already exists, update its info
+            db_chat: Chat = self.get_chat_by_id(tg_chat.id)
+            db_chat.title = tg_chat.title
+        else:
+            # create new uchat
+            db_chat = Chat(
+                id=tg_chat.id, title=tg_chat.title)
+            session.add(db_chat)
+
+    def migrate_chat(self, session, from_id, to_id):
+        '''Update a chat's id when it becomes a supergroup'''
+        chat = self.get_chat_by_id(session, from_id)
+        chat.id = to_id
+
+    def add_membership(self, session, user_id, chat_id):
+        '''Add a user to a chat's member list'''
+        user = self.get_user_by_id(session, user_id)
+        chat = self.get_chat_by_id(session, chat_id)
+
+        if chat not in user.chats:
+            user.chats.append(chat)
+            session.add(user)
+
+    def remove_membership(self, session, user_id, chat_id):
+        '''Remove a user from a chat's member list'''
+        user = self.get_user_by_id(session, user_id)
+        chat = self.get_chat_by_id(session, chat_id)
+
+        user.chats.remove(chat)
 
     # quote methods
     def get_quote_by_id(self, session: Session, quote_id):

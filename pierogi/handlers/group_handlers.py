@@ -4,8 +4,8 @@ import logging
 import re
 import itertools
 from pierogi.main import quote_database, BOT_USERNAME
-from pierogi.util.db_classes import QUOTE_TYPES
-from pierogi.util.util import with_session
+from util.db_classes import QUOTE_TYPES
+from util.util import with_session
 from sqlalchemy.orm import Session
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler, filters
@@ -71,6 +71,7 @@ async def handle_addquote(
         session: Session):
     '''Add a new quote to the database'''
     logging.info('addquote')
+    logging.info(session)
 
     message = update.message
     quoted_message = message.reply_to_message
@@ -100,7 +101,7 @@ async def handle_addquote(
         # determine quote type
         if quoted_message.photo and not quoted_message.sticker:
             # found photo quote
-            message_type = QUOTE_TYPES.PHOTO
+            message_type = QUOTE_TYPES.PHOTO.value
 
             # choose largest photo TODO: quote multiple photos?
             photo = list(reversed(sorted(quoted_message.photo, key=lambda p: p.width * p.height)))
@@ -110,7 +111,7 @@ async def handle_addquote(
             file_id = photo.file_id
         elif quoted_message.text is not None:
             # found text quote
-            message_type = QUOTE_TYPES.TEXT
+            message_type = QUOTE_TYPES.TEXT.value
 
             content = quoted_message.text
             content_html = quoted_message.text_html
@@ -143,11 +144,16 @@ async def handle_addquote(
                 sent_by_id = sent_by.id
                 sent_at = quoted_message.date
 
-            if sent_by.username == BOT_USERNAME.lstrip('@'):  # prevent quoting bot messages
-                response = f"can't {noun} quote bot messages"
-            elif sent_by_id == quoted_by_id:  # prevent quoting own messages
+            # if sent_by.username == BOT_USERNAME.lstrip('@'):  # prevent quoting bot messages
+            #     response = f"can't {noun} this bot's messages"
+            if sent_by_id == quoted_by_id:  # prevent quoting own messages
                 response = f"can't {noun} your own messages"
             else:
+                # add or update relevant users to db
+                quote_database.add_or_update_user(session, sent_by)
+                quote_database.add_or_update_user(session, quoted_by)
+                quote_database.add_or_update_user(session, forwarded_by)
+
                 # attempt to add quote to database
                 new_quote, status = quote_database.add_quote(
                     session, chat_id, message_id, is_forward, forwarded_by_id, forwarded_at, sent_by_id, sent_at,

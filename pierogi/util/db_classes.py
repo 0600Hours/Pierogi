@@ -13,16 +13,16 @@ Base = declarative_base()
 # enums
 class CHAT_TYPES(Enum):
     '''Telegram chat types'''
-    GROUP = 'group'
-    SUPERGROUP = 'supergroup'
-    CHANNEL = 'channel'
-    PRIVATE = 'private'
+    GROUP = 'GROUP'
+    SUPERGROUP = 'SUPERGROUP'
+    CHANNEL = 'CHANNEL'
+    PRIVATE = 'PRIVATE'
 
 
 class QUOTE_TYPES(Enum):
     '''Types of messages that can be quoted'''
-    TEXT = 'text'
-    PHOTO = 'photo'
+    TEXT = 'TEXT'
+    PHOTO = 'PHOTO'
 
 
 # defines who is in what chat. maybe track admin perms here?

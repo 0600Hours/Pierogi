@@ -31,6 +31,7 @@ with open(os.path.join(BASE_DIR, 'data', CONFIG_FILENAME), 'r') as stream:
 BOT_USERNAME: str = CONFIG['BOT_NAME']
 
 # init database
+logging.info('a')
 quote_database = QuoteDatabase(DATABASE_FILENAME)
 
 
