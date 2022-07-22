@@ -30,7 +30,7 @@ class QuoteDatabase:
 
         self.db_location = f'sqlite:///{os.path.join(BASE_DIR, "data", filename)}'
         logging.INFO(f'db location: {self.db_location}')
-        
+
         engine = create_engine(self.db_location)
         Base.metadata.create_all(engine)
 

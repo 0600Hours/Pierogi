@@ -120,7 +120,7 @@ async def handle_addquote(
             response = f"can only {noun} text and/or photo messages"
 
         # extract necessary quote information if we have a valid quote type
-        if message_type is not None:            
+        if message_type is not None:
             chat_id = message.chat_id
             message_id = quoted_message.message_id
             quoted_by = message.from_user
